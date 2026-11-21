@@ -45,5 +45,16 @@ if (typeof post !== 'object' || post === null || typeof (post as { url?: unknown
   process.exit(1);
 }
 
+// The url must be an X post address: https://x.com/<handle>/status/<digits>.
+// twitter.com, www./mobile. prefixes and /i/web/status/<digits> are read the
+// same way, and a query or fragment after the id is read past — but the id
+// itself must be digits only, or the house cannot read the post.
+const url = (post as { url: string }).url;
+const POST_URL = /^https:\/\/(?:www\.|mobile\.)?(?:x\.com|twitter\.com)\/(?:[A-Za-z0-9_]{1,15}\/status\/|i\/web\/status\/)\d+(?:[?#].*)?$/;
+if (!POST_URL.test(url)) {
+  console.error(`${source} "url" is not an X post address: ${url}`);
+  process.exit(1);
+}
+
 mkdirSync(OUTPUT_DIR, { recursive: true });
 writeFileSync(target, bytes);
